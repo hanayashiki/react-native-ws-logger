@@ -1,5 +1,6 @@
-export default {
-  multiply(a: number, b: number) {
-    return Promise.resolve(a * b);
-  },
-};
+import './ws-interceptor';
+import './logger';
+
+import WebSocketLogger from './WebSocketLogger';
+
+export default WebSocketLogger;

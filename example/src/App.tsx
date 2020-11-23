@@ -1,17 +1,41 @@
 import * as React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
-import WsLogger from 'react-native-ws-logger';
+import { StyleSheet, View, Button } from 'react-native';
+import WebSocketLogger from 'react-native-ws-logger';
 
 export default function App() {
-  const [result, setResult] = React.useState<number | undefined>();
-
-  React.useEffect(() => {
-    WsLogger.multiply(3, 7).then(setResult);
-  }, []);
-
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      <WebSocketLogger />
+      <Button
+        title={'new conn'}
+        onPress={() => {
+          const ws = new WebSocket('ws://echo.websocket.org', [], {
+            headers: {
+              Host: 'echo.websocket.org',
+            },
+          });
+          ws.onopen = () => {
+            ws.send('123123321');
+          };
+
+          setTimeout(() => {
+            ws.close();
+          }, 5000);
+
+          const ws2 = new WebSocket('ws://echo.websocket.org', [], {
+            headers: {
+              Host: 'ssssecho.websocket.org',
+            },
+          });
+          ws2.onopen = () => {
+            ws2.send('123123321');
+          };
+
+          setTimeout(() => {
+            ws2.close();
+          }, 5000);
+        }}
+      />
     </View>
   );
 }
@@ -19,7 +43,5 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
