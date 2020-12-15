@@ -1,6 +1,6 @@
 {
   "name": "react-native-ws-logger",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "An out-of-the-box websocket network viewer",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
