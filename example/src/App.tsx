@@ -1,11 +1,14 @@
 import * as React from 'react';
 import { StyleSheet, View, Button } from 'react-native';
 import WebSocketLogger from 'react-native-ws-logger';
+import { LoggedWebSocket } from 'react-native-ws-logger';
 
 export default function App() {
   return (
     <View style={styles.container}>
       <WebSocketLogger />
+
+      <Button title={'patch'} onPress={() => LoggedWebSocket.patch()} />
       <Button
         title={'new conn'}
         onPress={() => {

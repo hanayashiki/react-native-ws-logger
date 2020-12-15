@@ -1,6 +1,6 @@
 import './ws-interceptor';
 
-import { action, autorun, computed, makeObservable, observable } from 'mobx';
+import { action, computed, makeObservable, observable } from 'mobx';
 
 import type { WebSocketConnection, WebSocketEvent } from './types';
 
@@ -49,7 +49,6 @@ export class Logger {
     if (event.type === 'ERROR' || event.type === 'CLOSE') {
       readyState = 3;
     }
-    console.log({ readyState });
 
     this.connections = {
       ...this.connections,
@@ -57,7 +56,7 @@ export class Logger {
         ...this.connections[connectionId],
         messageCount:
           (this.connections[connectionId]?.messageCount || 0) +
-          (event.type === 'MESSAGE' ? 1 : 0),
+          (event.type === 'RECV' || event.type === 'SEND' ? 1 : 0),
         readyState,
       },
     };
@@ -65,9 +64,5 @@ export class Logger {
 }
 
 const logger = new Logger();
-
-autorun(() => {
-  console.log(logger.connectionList);
-});
 
 export { logger };

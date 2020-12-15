@@ -9,7 +9,8 @@ export interface WebSocketConnection {
   messageCount?: integer;
 }
 
-export type EventType = 'OPEN' | 'MESSAGE' | 'ERROR' | 'CLOSE' | 'SEND';
+export type EventType = 'OPEN' | 'SEND' | 'RECV' | 'ERROR' | 'CLOSE' | 'SEND';
+export type DirectionType = 'UP' | 'DOWN';
 
 export interface WebSocketEvent {
   date: Date;
@@ -17,6 +18,8 @@ export interface WebSocketEvent {
   type: EventType;
   // message/send
   data?: string | Buffer;
+  // direction
+  direction?: DirectionType;
   // close
   code?: string;
   reason?: string;

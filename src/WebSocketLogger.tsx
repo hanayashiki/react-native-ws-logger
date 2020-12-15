@@ -86,8 +86,6 @@ export function WebSocketLoggerEntry(props: WebSocketLoggerEntryProps) {
     '3': 'gray',
   };
 
-  console.log(props.connection.readyState);
-
   return (
     <TouchableOpacity
       activeOpacity={0.7}
@@ -182,14 +180,15 @@ export function ErrorView(props: EventViewProps) {
 export function EventView(props: EventViewProps) {
   const tagColor = {
     OPEN: 'green',
-    MESSAGE: '#1E90FF',
+    RECV: '#1E90FF',
     ERROR: 'red',
     CLOSE: 'black',
     SEND: '#00BFFF',
   };
 
   const abstractViews = {
-    MESSAGE: () => <MessageView event={props.event} />,
+    RECV: () => <MessageView event={props.event} />,
+    SEND: () => <MessageView event={props.event} />,
     CLOSE: () => <CloseView event={props.event} />,
     ERROR: () => <ErrorView event={props.event} />,
   };
