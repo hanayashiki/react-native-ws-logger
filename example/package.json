@@ -9,6 +9,9 @@
     "start": "react-native start"
   },
   "dependencies": {
+    "@types/jest": "^26.0.19",
+    "@types/react": "^17.0.0",
+    "@types/react-native": "^0.63.40",
     "react": "16.11.0",
     "react-native": "0.62.2"
   },

@@ -4,19 +4,29 @@ import WebSocketLogger from 'react-native-ws-logger';
 import { LoggedWebSocket } from 'react-native-ws-logger';
 
 export default function App() {
+  const [enabled, setEnabled] = LoggedWebSocket.useWsInterceptor();
+
   return (
     <View style={styles.container}>
       <WebSocketLogger />
 
-      <Button title={'patch'} onPress={() => LoggedWebSocket.patch()} />
+      <Button
+        title={enabled ? 'unpatch' : 'patch'}
+        onPress={() => setEnabled(!enabled as boolean)}
+      />
       <Button
         title={'new conn'}
         onPress={() => {
-          const ws = new WebSocket('ws://echo.websocket.org', [], {
-            headers: {
-              Host: 'echo.websocket.org',
+          const params = ([
+            'ws://echo.websocket.org',
+            [],
+            {
+              headers: {
+                Host: 'echo.websocket.org',
+              },
             },
-          });
+          ] as any) as [any, any];
+          const ws = new WebSocket(...params);
           ws.onopen = () => {
             ws.send('123123321');
           };
@@ -25,11 +35,17 @@ export default function App() {
             ws.close();
           }, 5000);
 
-          const ws2 = new WebSocket('ws://echo.websocket.org', [], {
-            headers: {
-              Host: 'ssssecho.websocket.org',
+          const params2 = ([
+            'ws://echo.websocket.org',
+            [],
+            {
+              headers: {
+                Host: 'echoxxxx.websocket.org',
+              },
             },
-          });
+          ] as any) as [any, any];
+
+          const ws2 = new WebSocket(...params2);
           ws2.onopen = () => {
             ws2.send('123123321');
           };

@@ -1,14 +1,16 @@
 const WebSocketEvent = require('react-native/Libraries/WebSocket/WebSocketEvent');
 
 import { logger } from './logger';
+import { useState } from 'react';
 
-export class LoggedWebSocket extends window.WebSocket {
+export class LoggedWebSocket extends WebSocket {
+  __connectionId: string;
   static __LoggedWebSocket = true;
-  static oldWebSocket = window.WebSocket;
+  static oldWebSocket = WebSocket;
   constructor(url, protocols, options) {
-    super(url, protocols, options);
+    super(...(([url, protocols, options] as any) as [any, any])); // An ugly workaround against typescript..
 
-    const connectionId = Math.floor(Math.random() * 1e6);
+    const connectionId = `${Math.floor(Math.random() * 1e6)}`;
     this.__connectionId = connectionId;
     logger.addConnection({
       connectionId,
@@ -21,13 +23,35 @@ export class LoggedWebSocket extends window.WebSocket {
   }
 
   static patch() {
-    if (window.WebSocket.__LoggedWebSocket !== true) {
-      window.WebSocket = LoggedWebSocket;
+    if (!LoggedWebSocket.isPatched()) {
+      window.WebSocket = LoggedWebSocket as any;
     }
+  }
+
+  static isPatched() {
+    // eslint-disable-next-line dot-notation
+    return window.WebSocket['__LoggedWebSocket'] === true;
   }
 
   static unpatch() {
     window.WebSocket = LoggedWebSocket.oldWebSocket;
+  }
+
+  static useWsInterceptor(): [boolean, (enabled: boolean) => void] {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [enabled, _setEnabled] = useState(LoggedWebSocket.isPatched());
+
+    const setEnabled = (_enabled) => {
+      if (_enabled) {
+        LoggedWebSocket.patch();
+        _setEnabled(true);
+      } else {
+        LoggedWebSocket.unpatch();
+        _setEnabled(false);
+      }
+    };
+
+    return [enabled, setEnabled];
   }
 
   send(data) {
@@ -42,9 +66,10 @@ export class LoggedWebSocket extends window.WebSocket {
   }
 
   _registerEvents() {
-    this._subscriptions = [
-      this._eventEmitter.addListener('websocketMessage', (ev) => {
-        if (ev.id !== this._socketId) {
+    const anyThis = this as any;
+    anyThis._subscriptions = [
+      anyThis._eventEmitter.addListener('websocketMessage', (ev) => {
+        if (ev.id !== anyThis._socketId) {
           return;
         }
         let data = ev.data;
@@ -63,12 +88,12 @@ export class LoggedWebSocket extends window.WebSocket {
 
         this.dispatchEvent(new WebSocketEvent('message', { data }));
       }),
-      this._eventEmitter.addListener('websocketOpen', (ev) => {
-        if (ev.id !== this._socketId) {
+      anyThis._eventEmitter.addListener('websocketOpen', (ev) => {
+        if (ev.id !== anyThis._socketId) {
           return;
         }
-        this.readyState = this.OPEN;
-        this.protocol = ev.protocol;
+        anyThis.readyState = anyThis.OPEN;
+        anyThis.protocol = ev.protocol;
 
         logger.addEvent(this.__connectionId, {
           date: new Date(),
@@ -78,11 +103,11 @@ export class LoggedWebSocket extends window.WebSocket {
 
         this.dispatchEvent(new WebSocketEvent('open'));
       }),
-      this._eventEmitter.addListener('websocketClosed', (ev) => {
-        if (ev.id !== this._socketId) {
+      anyThis._eventEmitter.addListener('websocketClosed', (ev) => {
+        if (ev.id !== anyThis._socketId) {
           return;
         }
-        this.readyState = this.CLOSED;
+        anyThis.readyState = this.CLOSED;
         this.dispatchEvent(
           new WebSocketEvent('close', {
             code: ev.code,
@@ -96,14 +121,14 @@ export class LoggedWebSocket extends window.WebSocket {
           reason: ev.reason,
           eventId: Math.floor(Math.random() * 1e6),
         });
-        this._unregisterEvents();
+        anyThis._unregisterEvents();
         this.close();
       }),
-      this._eventEmitter.addListener('websocketFailed', (ev) => {
-        if (ev.id !== this._socketId) {
+      anyThis._eventEmitter.addListener('websocketFailed', (ev) => {
+        if (ev.id !== anyThis._socketId) {
           return;
         }
-        this.readyState = this.CLOSED;
+        anyThis.readyState = this.CLOSED;
         this.dispatchEvent(
           new WebSocketEvent('error', {
             message: ev.message,
@@ -121,7 +146,7 @@ export class LoggedWebSocket extends window.WebSocket {
             message: ev.message,
           })
         );
-        this._unregisterEvents();
+        anyThis._unregisterEvents();
         this.close();
       }),
     ];

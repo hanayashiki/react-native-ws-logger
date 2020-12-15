@@ -1,4 +1,3 @@
-import './ws-interceptor';
 import './logger';
 
 import WebSocketLogger from './WebSocketLogger';
